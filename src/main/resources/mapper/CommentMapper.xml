@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nbclass.mapper.CommentMapper">
+
+    <resultMap id="BaseResultMap" type="com.nbclass.model.BlogComment" >
+        <result column="id" property="id" />
+        <result column="sid" property="sid" />
+        <result column="mid" property="mid" />
+        <result column="parent_id" property="parentId" />
+        <result column="parent_nickname" property="parentNickname" />
+        <result column="qq" property="qq" />
+        <result column="nickname" property="nickname" />
+        <result column="avatar" property="avatar" />
+        <result column="email" property="email" />
+        <result column="ip" property="ip" />
+        <result column="os" property="os" />
+        <result column="browser" property="browser" />
+        <result column="content" property="content" />
+        <result column="floor" property="floor" />
+        <result column="support_num" property="supportNum" />
+        <result column="oppose_num" property="opposeNum" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <collection property="nodes" column="n_id" javaType="ArrayList" ofType="com.nbclass.model.BlogComment">
+            <result column="n_id" property="id"/>
+            <result column="n_mid" property="mid" />
+            <result column="n_nickname" property="nickname"/>
+            <result column="n_content" property="content"/>
+            <result column="n_support_num" property="supportNum" />
+            <result column="n_oppose_num" property="opposeNum" />
+            <result column="n_create_time" property="createTime"/>
+            <result column="n_p_parent_id" property="parentId"/>
+            <result column="n_p_parent_nickname" property="parentNickname"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        sid,
+        mid,
+        parent_id,
+        parent_nickname,
+        qq,
+        nickname,
+        avatar,
+        email,
+        ip,
+        os,
+        browser,
+        content,
+        floor,
+        support_num,
+        oppose_num,
+        status,
+        create_time,
+        update_time
+    </sql>
+
+    <select id="selectBySid" parameterType="integer" resultMap="BaseResultMap">
+       SELECT
+            a.id,
+            a.sid,
+            a.qq,
+            a.nickname,
+            a.avatar,
+            a.email,
+            a.ip,
+            a.os,
+            a.browser,
+            a.content,
+            a.floor,
+            a.support_num,
+            a.oppose_num,
+            a.create_time,
+            n.id AS n_id,
+            n.mid AS n_mid,
+            n.nickname AS n_nickname,
+            n.content AS n_content,
+            n.support_num AS n_support_num,
+            n.oppose_num AS n_oppose_num,
+            n.create_time AS n_create_time,
+            n.parent_id AS n_p_parent_id,
+            n.parent_nickname AS n_p_parent_nickname
+        FROM
+            blog_comment a
+        LEFT JOIN blog_comment n ON a.id = n.mid AND n.status = 1
+        WHERE
+            a.status = 1
+        AND a.sid = #{sid}
+        AND a.mid IS NULL
+        ORDER BY a.create_time DESC, n.create_time ASC
+    </select>
+
+    <update id="updateNum" parameterType="map">
+        update blog_comment
+        <set>
+            <if test="supportNum != null">support_num = support_num+1, </if>
+            <if test="opposeNum != null">oppose_num = oppose_num+1, </if>
+        </set>
+        where id=#{commentId}
+    </update>
+
+    <select id="selectMaxFloorBySid" resultType="int">
+        select max(floor)
+        from blog_comment
+        where sid = #{sid}
+    </select>
+</mapper>

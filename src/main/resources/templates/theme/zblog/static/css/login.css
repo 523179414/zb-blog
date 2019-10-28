@@ -1,0 +1,268 @@
+ol, ul {
+    list-style: none;
+}
+
+button {
+    outline: none;
+}
+
+.btn:active, .btn:focus {
+    outline: 0 !important;
+}
+
+.ml-15 {
+    margin-left: 15px;
+}
+
+.ml-20 {
+    margin-left: 20px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.pb-10 {
+    padding-bottom: 20px;
+}
+
+.pb-20 {
+    padding-bottom: 20px;
+}
+
+.pb-30 {
+    padding-bottom: 30px;
+}
+.bg-47bf82{
+    background: #47bf82;
+}
+.bg-6e8bd6{
+    background: #6e8bd6;
+}
+.bg-ad53c4{
+    background: #ad53c4;
+}
+.bg-b98140{
+    background: #b98140;
+}
+.center{
+    text-align: center;
+}
+
+/*-------top-start------*/
+
+.logo-a img {
+    height: 50px;
+    margin-bottom: 30px;
+}
+
+.navbar-default .navbar-toggle {
+    border-color: #0086da;
+    background-color: #0086da;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #fff;
+}
+
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+    background-color: #0086da;
+}
+
+.navbar-nav .active {
+    border-bottom: 4px solid #3977de;
+}
+
+@media (max-width: 768px) {
+    .logo-a {
+        padding-left: 15px;
+    }
+
+    .navbar-nav .active {
+        border-bottom: 4px solid #3977de;
+        border-left: 1px solid #f8f8f8;
+        border-right: 1px solid #f8f8f8;
+    }
+}
+
+.navbar-nav .active a {
+    color: #3977de !important;
+}
+
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover {
+    color: #3977de;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+    color: #3977de;
+}
+
+.navbar-nav li a {
+    font-size: 15px;
+}
+
+.navbar-default .navbar-nav > .color-red > a {
+    color: red;
+}
+
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover {
+    background-color: #f8f8f8;
+}
+
+.dropdown-menu {
+    min-width: 110px;
+}
+
+.navbar-nav > li > .dropdown-menu {
+    background-color: #fff;
+    margin-top: 4px;
+}
+
+.navbar-nav > li > .dropdown-menu a {
+    color: #585858;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:focus, .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover {
+    color: #3977de;
+}
+
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:focus, .navbar-default .navbar-nav > .open > a:hover {
+    color: #3977de;
+    background-color: transparent;
+}
+
+.dropdown-menu .divider {
+    margin: 3px 0;
+}
+
+.flex-prev i {
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 30px;
+}
+
+.flex-next i {
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 30px;
+}
+
+
+/*swiper*/
+.swiper-button-next {
+    background-image: none;
+    font-size: 28px;
+    opacity: .6;
+    color: rgba(0, 0, 0, .65)
+}
+
+.swiper-button-prev {
+    background-image: none;
+    font-size: 28px;
+    opacity: .6;
+    color: rgba(0, 0, 0, .65)
+}
+
+.swiper-container .swiper-button-next:hover, .swiper-container .swiper-button-prev:hover {
+    opacity: 1
+}
+
+/*login内容开始*/
+input{
+    -webkit-appearance: none;
+}
+.login-content {
+    position: relative;
+    margin-top: 55px;
+}
+
+.login-bg {
+    background: #f1f1f1;
+    width: 100%;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    height: auto;
+    z-index: -100;
+    background-size: cover;
+}
+
+.login-box {
+    position: absolute;
+    z-index: 2;
+    margin-top: 8%;
+    margin-right: calc(50% - 162px);
+    top: 0px;
+    right: 0px;
+    padding-bottom: 30px;
+}
+
+.login-form {
+    width: 340px;
+    float: right;
+    padding: 28px;
+    border-radius: 3px;
+    background: #fff;
+}
+
+.login-form .login-title {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #4e4e4e;
+}
+
+.vcode-icon{
+    font-weight: 700;
+    font-size: 15px;
+}
+
+@media (max-width: 768px) {
+    .login-box {
+        right: 50%;
+        margin-right: -162px;
+    }
+}
+
+.login-form .form-control-feedback {
+    color: #666;
+    left: 0;
+    right: auto;
+}
+
+.login-form .has-feedback .form-control {
+    padding-left: 35px;
+    padding-right: 10px;
+    height: 40px;
+}
+.login-form .form-control-feedback{
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+}
+
+.vcode {
+    font-size: 0px;
+}
+
+.vcode-content {
+    width: 60%;
+    display: inline-block;
+}
+
+.vcode-input {
+    display: inline-block;
+    vertical-align: middle;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.vcode-img {
+    width: 40%;
+    height: 40px;
+    position: absolute;
+}
+.position-a{
+    right: 120px;
+}

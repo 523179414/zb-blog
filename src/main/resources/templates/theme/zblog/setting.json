@@ -1,0 +1,45 @@
+{
+	"name": "zblog",
+	"desc": "初始化主题",
+	"img": "https://cdn.nbclass.com/img/blog/a7e5d14fc9d746319e32ec3cf24a61fd.jpg",
+	"setFlag": 1,
+	"settings": {
+		"form": [{
+			"name": "sitePersonName",
+			"label": "站长名称",
+			"type": "text",
+			"placeholder": "",
+			"defaultValue":"nbclass"
+		},{
+			"name": "sitePersonDesc",
+			"label": "站长描述",
+			"type": "text",
+			"placeholder":  "",
+			"defaultValue":"nbclass is very nb"
+		},{
+			"name": "sitePersonPic",
+			"label": "站长头像",
+			"type": "text",
+			"placeholder": "",
+			"defaultValue":"/theme/zblog/static/img/person.jpg"
+		},{
+			"name": "testRadio",
+			"label": "测试Radio",
+			"type": "radio",
+			"placeholder": "",
+			"defaultValue":"0",
+			"options":[
+				{
+					"label":"是",
+					"value":"1"
+				},
+				{
+					"label":"否",
+					"value":"2"
+				}
+			]
+		}]
+	},
+	"createTime": "2019-10-24 09:00:00",
+	"version": "1.0"
+}

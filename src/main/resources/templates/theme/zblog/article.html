@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="keywords" th:content="${article.seoKey}">
+		<meta name="description" th:content="${article.seoDesc}">
+		<title th:text="${article.title}"></title>
+		<link href="https://cdn.bootcss.com/font-awesome/5.10.2/css/all.min.css" rel="stylesheet">
+		<link th:href="${static+'/css/bootstrap.min.css'}" rel="stylesheet"/>
+		<link th:href="${static+'/css/github-markdown.min.css'}"rel="stylesheet" />
+		<link th:href="${static+'/css/blog.css'}"rel="stylesheet" />
+		<script th:src="${static+'/js/jquery.min.js'}"></script>
+		<script th:src="${static+'/js/bootstrap.min.js'}"></script>
+		<script th:src="${static+'/js/blog.js'}"></script>
+	</head>
+	<body>
+		<header id="header">
+			<div th:replace="theme/zblog/fragments/navbar :: navbar"></div>
+		</header>
+		<div class="zb-container zb-content">
+			<div class="zb-main">
+				<div class="article-main">
+					<h3 th:text="${article.title}" class="article-title"></h3>
+					<span th:text="${article.origin==1 ? '原创' : '转载'}" class="article-original"></span>
+					<div class="article-meta">发布于 <span th:text="${#dates.format(article.createTime,'yyyy-MM-dd')}"></span> &nbsp;|&nbsp; <span th:text="${article.category.name}"></span> &nbsp;|&nbsp; 浏览（<span th:text="${article.lookNum}"></span>） &nbsp;|&nbsp; 评论（<span th:text="${article.commentNum}"></span>）</div>
+					<hr class="hr0" />
+					<div th:utext="${article.content}" class="article-body markdown-body editor-preview-active-side">
+					</div>
+					<div class="thumbs-content">
+						<span class="thumbs-button fa fa-thumbs-up"> 点赞 <span id="loveCount" th:text="${article.supportNum}"></span></span>
+						<span class="reward-button fa fa-money"> 打赏
+						<p class="reward-content">
+							<span class="reward-img"><img th:src="${static+'/img/weixin.jpg'}"><br>微信赞赏</span>
+							<span class="reward-img"><img th:src="${static+'/img/zhifubao.jpg'}"><br>支付宝赞赏</span></p>
+						<span class="reward-bottom"></span>
+						<span class="reward-bottom-top"></span>
+						</span>
+					</div>
+				</div>
+				<div th:if="${article.isComment}" id="comment" class="comment comment-main">
+					<div class="comment-title">发表评论</div>
+					<form id="comment-form" class="form-horizontal mt-10">
+						<input id="articleId" name="sid" type="hidden" th:value="${article.id}">
+						<div id="user-name-content" class="user-name-content">欢迎您：<b id="user-name"></b><span class="save-user btn btn-sm btn-pri">保存</span></div>
+						<div class="form-group" id="user-info" style="display: none">
+							<div class="col-sm-4">
+								<input id="nickname" type="text"  class="form-control"  name="nickname" placeholder="昵称(必填)" require="">
+							</div>
+							<div class="col-sm-4">
+								<input id="qq" type="text" class="form-control"  name="qq" placeholder="QQ（可获取头像和昵称）">
+							</div>
+							<div class="col-sm-4">
+								<input id="email" type="text" class="form-control"  name="email" placeholder="邮箱">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-xs-12">
+                                <input id="comment-textarea-input" name="content" type="hidden">
+								<textarea  id="comment-textarea"  class="form-control"  rows="4"  require="" placeholder="说点什么吧~"></textarea>
+							</div>
+						</div>
+						<div><button id="submitCommentBtn" type="button" class="btn btn-pri">发表评论</button></div>
+					</form>
+					<hr class="hr0 mt-15"/>
+					<ul id="comment-ul" class="comment">
+					</ul>
+				</div>
+			</div>
+			<div th:replace="theme/zblog/fragments/sidebar :: sidebar"></div>
+			<script>
+                var sid=[[${article.id}]];
+                $(function () {
+                    Core.postAjax("/api/article/look",{"articleId":sid})
+                    $(".thumbs-button").click(function () {
+                        Core.postAjax("/api/article/love",{"articleId":sid},function (data) {
+                            if(data.status==200){
+                                $("#loveCount").text(parseInt($("#loveCount").text())+1);
+                            }else{
+                                Core.msg(data.msg,2)
+                            }
+                        });
+                    })
+                })
+			</script>
+			<script  th:if="${article.isComment}">
+                $(function () {
+                    var zblogNickName=Core.getCookie("zblog-username");
+                    var zblogQQ=Core.getCookie("zblog-qq");
+                    var zblogEmail=Core.getCookie("zblog-email");
+                    if(zblogNickName!=""){
+                        $("#user-name-content").show();
+                        $("#user-name").text(zblogNickName);
+                        $("#nickname").val(zblogNickName);
+                        $("#qq").val(zblogQQ);
+                        $("#email").val(zblogEmail);
+                    }else{
+                        $("#user-info").show();
+                    }
+                    function init(pageNum) {
+                        Core.postAjax("/api/comments",{"sid":sid,"pageNum": (pageNum==null? 1 : pageNum)},function (data) {
+                            var data = data.data;
+                            var commentOne="";
+                            if(data.list.length==0){
+                                commentOne+='<div class="no-comment">暂无评论，快来占领宝座</div>';
+                                $("#comment-ul").append(commentOne);
+                            }else{
+                                $.each(data.list,function (index,value) {
+                                    commentOne +=
+                                        '<li>'+
+                                        '	<div class="comment-body" id="comment-'+value.id+'">'+
+                                        '		<div class="comment-user-img">'+
+                                        '			<img src="'+(value.avatar||"/img/user-default.png")+'" onerror="this.src=\'/img/user-default.png\'" />'+
+                                        '		</div>'+
+                                        '		<div class="comment-info">'+
+                                        '			<div class="comment-top">'+
+                                        '				<span class="comment-nickname">'+
+                                        '					<a href="javascript:void(0)">'+value.nickname+'</a>'+
+                                        '				</span>'+
+                                        '				<span class="comment-time">'+Core.getDateDiff(new Date(value.createTime))+
+                                        '				</span>'+
+                                        '				<span class="comment-floor">#'+value.floor+'楼'+
+                                        '				</span>'+
+                                        '			</div>'+
+                                        '           <div class="comment-content">'+
+                                        '               <div class="comment-content-text">'+value.content+'</div>'+
+                                        '			</div>'+
+                                        '			<div class="comment-footer">'+
+                                        '				<span class="reply mr-5" reply-id="'+value.id+'" reply-mid="'+value.id+'" reply-nickname="'+value.nickname+'">回复</span>'+
+                                        '				<span class="cancel-reply mr-5" style="display: none;">取消回复</span>'+
+                                        '				<span class="comment-support pointer fa fa-thumbs-o-up" biz-id="'+value.id+'">'+value.supportNum+'</span>'+
+                                        '			</div>'+
+                                        '		</div>'+
+                                        '	</div> ';
+                                    if(value.nodes!=null){
+                                        $.each(value.nodes, function (nIndex,nValue) {
+                                            commentOne +=
+                                                '<div class="comment-body-sub" id="comment-'+nValue.id+'">'+
+                                                '		<div class="comment-user-img">'+
+                                                '			<img src="'+(nValue.avatar||"/img/user-default.png")+'" onerror="this.src=\'/img/user-default.png\'" />'+
+                                                '		</div>'+
+                                                '		<div class="comment-info">'+
+                                                '			<div class="comment-top">'+
+                                                '				<span class="comment-nickname">'+
+                                                '					<a href="javascript:void(0)">'+nValue.nickname+'</a><a class="comment-link" data-link="comment-'+nValue.parentId+'">@'+nValue.parentNickname+'</a>'+
+                                                '				</span>'+
+                                                '				<span class="comment-time">'+Core.getDateDiff(new Date(nValue.createTime))+
+                                                '				</span>'+
+                                                '			</div>'+
+                                                '           <div class="comment-content">'+
+                                                '               <div class="comment-content-text">'+nValue.content+'</div>'+
+                                                '			</div>'+
+                                                '			<div class="comment-footer">'+
+                                                '				<span class="reply mr-5" reply-id="'+nValue.id+'" reply-mid="'+nValue.mid+'" reply-nickname="'+nValue.nickname+'">回复</span>'+
+                                                '				<span class="cancel-reply mr-5" style="display: none;">取消回复</span>'+
+                                                '				<span class="comment-support pointer fa fa-thumbs-o-up" biz-id="'+nValue.id+'">'+nValue.supportNum+'</span>'+
+                                                '			</div>'+
+                                                '		</div>'+
+                                                '</div> ';
+                                        })
+                                    }
+                                    commentOne +='</li>';
+                                })
+                                $("#comment-more").remove();
+                                if(data.hasNextPage){
+                                    commentOne+='<div id="comment-more" data-page="'+data.nextPage+'" class="comment-more">加载更多</div>'
+                                }
+                                $("#comment-ul").append(commentOne);
+								/*加载更多*/
+                                $("#comment-more").click(function () {
+                                    init($(this).attr("data-page"));
+                                })
+								/*link至评论*/
+                                $("#comment-ul").on("click",".comment-link",function () {
+                                    var commentLinkId = $(this).attr("data-link");
+                                    $("html,body").animate({
+                                        scrollTop:$("#"+commentLinkId).offset().top-55},{duration: 300,easing: "swing"})
+                                })
+
+                                $(".reply").click(function () {
+                                    var replyId=$(this).attr("reply-id");
+                                    var replyMid=$(this).attr("reply-mid");
+                                    var replyNickname=$(this).attr("reply-nickname");
+                                    if($("#reply-comment-form").length>0){
+                                        $replyForm=$("#reply-comment-form");
+                                        $("#reply-comment-form").remove();
+                                        $replyForm.css("display","none");
+                                        $(this).parent().after($replyForm);
+                                        $("#reply-comment-form").slideDown(250);
+                                        $(".reply[style='display: none;']").next().hide();
+                                        $(".reply[style='display: none;']").show();
+                                        $("#replyId").val(replyId);
+                                    }else{
+                                        var replyForm =
+                                            '<form id="reply-comment-form" style="display: none;" class="form-horizontal mt-10">'+
+                                            '   <input name="sid" type="hidden" value="'+sid+'"  />'+
+                                            '   <input id="replyMid" name="mid" type="hidden" value="'+replyMid+'"  />'+
+                                            '   <input id="replyId" name="parentId" type="hidden" value="'+replyId+'"  />'+
+                                            '   <input id="replyNickname" name="parentNickname" type="hidden" value="'+replyNickname+'"  />'+
+                                            '   <div class="form-group" style="display: '+(zblogNickName==""?"block":"none")+'">'+
+                                            '       <div class="col-sm-4">'+
+                                            '           <input id="reply-nickname" value="'+zblogNickName+'"  type="text" class="form-control" name="nickname" placeholder="昵称(必填)" />'+
+                                            '       </div>'+
+                                            '       <div class="col-sm-4">'+
+                                            '           <input id="reply-qq" value="'+zblogQQ+'" type="text" class="form-control" name="qq" placeholder="QQ（可获取头像和昵称）" />'+
+                                            '       </div>'+
+                                            '       <div class="col-sm-4">'+
+                                            '           <input id="reply-email" value="'+zblogEmail+'" type="text" class="form-control" name="email" placeholder="邮箱" />'+
+                                            '       </div>'+
+                                            '   </div>'+
+                                            '   <div class="form-group">'+
+                                            '       <div class="col-xs-12">'+
+                                            '           <input name="content" type="hidden" class="form-control" id="reply-comment-textarea-input">'+
+                                            '           <textarea class="form-control" id="reply-comment-textarea" rows="4" placeholder="说点什么吧~"></textarea>'+
+                                            '       </div>'+
+                                            '   </div>'+
+                                            '   <div>'+
+                                            '   <button id="submitReplyCommentBtn" type="button" class="btn btn-pri">发表评论</button>'+
+                                            '   </div>'+
+                                            '</form>'
+                                        $(this).parent().after(replyForm);
+                                        $("#reply-comment-form").slideDown(250);
+                                    }
+                                    $(this).hide();
+                                    $(this).next().show();
+                                    $("#submitReplyCommentBtn").on('click',function () {
+                                        if($("#reply-nickname").val()==""){
+                                            Core.msg("请输入昵称~")
+                                            return;
+                                        }else if($("#reply-comment-textarea").val()==""){
+                                            Core.msg("说点什么吧~")
+                                            return;
+                                        }
+                                        var replyContent = formatContent($("#reply-comment-textarea").val());
+                                        $("#reply-comment-textarea-input").val(replyContent);
+                                        Core.postAjax("/api/comment/save",$("#reply-comment-form").serialize(),function (data) {
+                                            Core.msg(data.msg);
+                                            if(data.status==200){
+                                                $("#reply-comment-textarea-input,#reply-comment-textarea").val("");
+                                                $("#reply-comment-form").hide();
+                                                $(".reply[style='display: none;']").next().hide();
+                                                $(".reply[style='display: none;']").show();
+                                                handleCommentData(data.data,1);
+                                                if(Core.getCookie("zblog-username")==""){
+                                                    Core.setCookie("zblog-username",$("#reply-nickname").val(),30);
+                                                    Core.setCookie("zblog-qq",$("#reply-qq").val(),30);
+                                                    Core.setCookie("zblog-email",$("#reply-email").val(),30);
+                                                }
+                                            }
+                                        })
+                                    })
+                                })
+                                $(".cancel-reply").click(function () {
+                                    $("#reply-comment-form").slideUp(250);
+                                    $(this).hide();
+                                    $(this).prev().show();
+                                })
+
+                                $(".comment-support").click(function () {
+                                    $thisLove = $(this);
+                                    Core.postAjax("/api/comment/love",{"commentId":$(this).attr("biz-id")},function (data) {
+                                        if(data.status==200){
+                                            $thisLove.text(parseInt($thisLove.text())+1);
+                                        }else{
+                                            Core.msg(data.msg,2);
+                                        }
+                                    });
+                                })
+                            }
+
+                        })
+                    }
+                    init();
+
+					/*提交评论*/
+                    $("#submitCommentBtn").click(function () {
+                        if($("#nickname").val()==""){
+                            Core.msg("请输入昵称~")
+                            return;
+                        }else if($("#comment-textarea").val()==""){
+                            Core.msg("说点什么吧~")
+                            return;
+                        }
+                        var content = formatContent($("#comment-textarea").val());
+                        $("#comment-textarea-input").val(content);
+                        Core.postAjax("/api/comment/save",$("#comment-form").serialize(),function (data) {
+                            Core.msg(data.msg);
+                            if(data.status==200){
+                                $("#comment-textarea-input,#comment-textarea").val("");
+                                handleCommentData(data.data);
+                                $(".no-comment").hide();
+                                if(zblogNickName!=$("#nickname").val()||zblogQQ!=$("#qq").val()||zblogEmail!=$("#email").val()){
+                                    Core.setCookie("zblog-username",$("#nickname").val(),30);
+                                    Core.setCookie("zblog-qq",$("#qq").val(),30);
+                                    Core.setCookie("zblog-email",$("#email").val(),30);
+                                }
+                            }
+                        })
+                    })
+					/*点击用户名*/
+                    $("#user-name").click(function () {
+                        if($("#user-info").hasClass("user-show")){
+                            $(".save-user").hide();
+                            $("#user-info").slideUp(250);
+                            $("#user-info").removeClass("user-show");
+
+                        }else{
+                            $(".save-user").show();
+                            $("#user-info").slideDown(250);
+                            $("#user-info").addClass("user-show");
+                        }
+
+                    })
+                    /*保存用户*/
+                    $(".save-user").click(function () {
+                        var nickname=$("#nickname").val();
+                        var qq=$("#qq").val();
+                        var email=$("#email").val();
+                        if(zblogNickName!=nickname||zblogQQ!=qq||zblogEmail!=email){
+                            Core.setCookie("zblog-username",nickname,30);
+                            Core.setCookie("zblog-qq",qq,30);
+                            Core.setCookie("zblog-email",email,30);
+                            $("#user-name").text(nickname);
+                            zblogNickName=nickname;
+                            zblogQQ=qq;
+                            zblogEmail=email;
+                            $("#reply-nickname").val(nickname);
+                            $("#reply-qq").val(qq);
+                            $("#reply-email").val(email);
+                        }
+                        $(".save-user").hide();
+                        $("#user-info").slideUp(250);
+                        $("#user-info").removeClass("user-show");
+                    })
+                    /*格式化字符串*/
+                    function formatContent(a) {
+                        a = a.replace(/\r\n/g, '<br/>');
+                        a = a.replace(/\n/g, '<br/>');
+                        a = a.replace(/\s/g, ' ');
+                        return a;
+                    }
+
+                    function handleCommentData(data,isReply){
+                        var html='<li>'+
+                            '<div class="comment-body">'+
+                            ' <div class="comment-user-img">'+
+                            '<img src="'+data.avatar+'" onerror="this.src=\'/img/user-default.png\'" />'+
+                            '</div>'+
+                            '<div class="comment-info">'+
+                            '<div class="comment-top">'+
+                            '<span class="comment-nickname"> <a href="javascript:void(0)">'+data.nickname+'</a> </span>'+
+                            '<span class="comment-time">'+Core.getDateDiff(new Date(data.createTime))+'</span>'+
+                            ' </div>'+
+                            ' <div class="comment-content">';
+                        if(isReply){
+                          var pNickname= $("#reply-comment-form").parent().find(".comment-top .comment-nickname>a:first-child").text();
+                          var pText =  $("#reply-comment-form").parent().find(".comment-content>.comment-content-text").text();
+                          html+='<div class="comment-parent">'+
+                            '<div class="comment-parent-user">	'+
+                            '<a class="comment-link" data-link="comment-'+data.parentId+'">@'+pNickname+'</a>	'+
+                            '</div>	'+
+                            '<div class="comment-parent-content">'+pText+'</div>	'+
+                            '</div>';
+                        }
+                        html+=data.content+
+                            '</div>'+
+                            '<div class="comment-footer"><span class="audit">正在审核</span>'+
+                            '</div>'+
+                            '</div>'+
+                            '</div>'+
+                            '</li>';
+                        $("#comment-ul").prepend(html);
+                    }
+                })
+			</script>
+
+		</div>
+		<div class="return_top"><a class=" fa fa-arrow-up"></a></div>
+	</body>
+
+</html>

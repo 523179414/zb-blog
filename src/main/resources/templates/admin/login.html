@@ -1,0 +1,80 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>login</title>
+	<link rel="stylesheet" th:href="@{/css/auth.css}"/>
+</head>
+
+<body>
+<div class="lowin">
+	<div class="lowin-brand">
+		<img th:src="@{/img/picture.jpg}" alt="logo">
+	</div>
+	<div class="lowin-wrapper">
+		<div class="lowin-box lowin-login">
+			<div class="lowin-box-inner">
+				<form id="login-form">
+					<p>Sign in to continue</p>
+					<div class="lowin-group">
+						<label>Account <a href="#" class="login-back-link">Sign in?</a></label>
+						<input type="text" name="username" class="lowin-input"/>
+					</div>
+					<div class="lowin-group password-group">
+						<label>Password <a href="#" class="forgot-link">Forgot Password?</a></label>
+						<input type="password" name="password" class="lowin-input"/>
+					</div>
+					<button type="button" class="lowin-btn login-btn">
+						Sign In
+					</button>
+					<div class="text-foot" style="display: none">
+						Don't have an account?
+						<a href="" class="register-link">Register</a>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="lowin-box lowin-register lowin-flip">
+			<div class="lowin-box-inner">
+				<form id="register-form">
+					<p>Let's create your account</p>
+					<div class="lowin-group">
+						<label>Name</label>
+						<input type="text" name="username" class="lowin-input"/>
+					</div>
+					<div class="lowin-group">
+						<label>Email</label>
+						<input type="email" name="email" class="lowin-input"/>
+					</div>
+					<div class="lowin-group">
+						<label>Password</label>
+						<input type="password" name="password" class="lowin-input"/>
+					</div>
+					<button type="button" class="lowin-btn register-btn">
+						Sign Up
+					</button>
+					<div class="text-foot">
+						Already have an account?
+						<a href="" class="login-link">Login</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<footer class="lowin-footer">
+	</footer>
+</div>
+<script th:src="@{js/jquery.min.js}"></script>
+<script th:src="@{js/core.js}"></script>
+<script th:src="@{js/auth.js}"></script>
+<script>
+    Auth.init({
+        login_url: '/login',
+        register_url: '/register',
+        forgot_url: '/forgot'
+    });
+</script>
+
+</body>
+</html>

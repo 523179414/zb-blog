@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>首页</title>
+		<link href="https://cdn.bootcss.com/font-awesome/5.10.2/css/all.min.css" rel="stylesheet">
+		<link th:href="${static+'/css/bootstrap.min.css'}" rel="stylesheet"/>
+		<link th:href="${static+'/css/swiper.min.css'}" rel="stylesheet" />
+		<link th:href="${static+'/css/blog.css'}"rel="stylesheet" />
+		<script th:src="${static+'/js/jquery.min.js'}"></script>
+		<script th:src="${static+'/js/bootstrap.min.js'}"></script>
+		<script th:src="${static+'/js/swiper.min.js'}"></script>
+		<script th:src="${static+'/js/blog.js'}"></script>
+	</head>
+	<body>
+	<header id="header">
+		<div th:replace="theme/zblog/fragments/navbar :: navbar"></div>
+	</header>
+	<div class="zb-container zb-content">
+		<div class="zb-main">
+			<div th:if="${not #lists.isEmpty(notifyList)}" class="notice">
+				<div class="notice-icon">
+					<i class="fa fa-volume-up"></i>
+				</div>
+				<ul class="notice-list">
+					<li th:each="notify:${notifyList}">
+						<a th:if="${not #strings.isEmpty(notify.url)}" th:href="${notify.url}" target="_blank" th:text="${notify.title}">
+						</a>
+						<a th:if="${#strings.isEmpty(notify.url)}" th:text="${notify.title}">
+						</a>
+					</li>
+				</ul>
+			</div>
+			<div class="swiper-container mb-20" th:if="${not #lists.isEmpty(sliderList)}">
+				<div class="swiper-wrapper">
+					<div th:each="item:${sliderList}" class="swiper-slide">
+						<a zjax="" th:href="@{${item.url}}" target="_blank">
+							<img th:src="${item.img}">
+							<p class="slider-title" th:text="${item.title}"></p>
+						</a>
+					</div>
+				</div>
+				<!-- Add Pagination -->
+				<div class="swiper-pagination"></div>
+				<!-- Add Arrows -->
+				<div class="swiper-button-prev"><i class="fa fa-chevron-circle-left"></i></div>
+				<div class="swiper-button-next"><i class="fa fa-chevron-circle-right"></i></div>
+			</div>
+
+			<div class="no-article-content" th:if="${#lists.isEmpty(articleList)}">
+				Sorry, 暂未发现任何文章~
+			</div>
+			<div th:each="item,temp : ${articleList}" class="blogs">
+				<span th:if="${item.isTop==true}" class="fa fa-superscript-top superscript superscript-top"></span>
+				<span class="blogpic"><a><img th:src="${item.cover}"></a><span class="blog-type"><a zjax="" th:href="@{${'/'+item.category.aliasName}}" th:text="${item.category.name}"></a></span></span>
+				<h3 class="blogtitle"><a zjax="" th:href="@{${'/a/'+item.aliasName}}" th:text="${item.title}" ></a></h3>
+				<p  th:text="${item.intro}" class="blogtext"></p>
+				<div class="bloginfo">
+					<ul>
+						<li><span class="fa fa-clock-o"></span><span th:text="${#dates.format(item.createTime,'yyyy-MM-dd')}"></span></li>
+						<li><span class="fa fa-eye"></span><span th:text="${item.lookNum}"></span></li>
+						<li><a zjax="" class="comment-link-a" th:href="@{${'/a/'+item.aliasName+'#comment'}}"><span class="fa fa-comments-o"></span><span th:text="${item.commentNum}"></span></a></li>
+					</ul>
+					<a zjax="" class="read-more" th:href="@{${'/a/'+item.aliasName}}">阅读全文</a>
+				</div>
+			</div>
+			<div th:replace="theme/zblog/fragments/pagebar :: pageBar"></div>
+
+		</div>
+		<div th:replace="theme/zblog/fragments/sidebar :: sidebar"></div>
+	</div>
+	<div class="return_top"><a class=" fa fa-arrow-up"></a></div>
+	<script>
+		$(function () {
+			Core.textSlider(".notice");
+            Core.slider(".swiper-container");
+        })
+	</script>
+	</body>
+
+</html>

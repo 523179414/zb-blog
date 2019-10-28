@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nbclass.mapper.ArticleMapper">
+
+    <resultMap id="BaseResultMap" type="com.nbclass.model.BlogArticle" >
+        <result column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="intro" property="intro" />
+        <result column="cover" property="cover" />
+        <result column="content" property="content" />
+        <result column="content_md" property="contentMd" />
+        <result column="editor_type" property="editorType" />
+        <result column="alias_name" property="aliasName" />
+        <result column="category_id" property="categoryId" />
+        <result column="is_top" property="isTop" />
+        <result column="is_rec" property="isRec" />
+        <result column="is_public" property="isPublic" />
+        <result column="is_comment" property="isComment" />
+        <result column="type" property="type" />
+        <result column="video" property="video" />
+        <result column="origin" property="origin" />
+        <result column="look_num" property="lookNum" />
+        <result column="support_num" property="supportNum" />
+        <result column="oppose_num" property="opposeNum" />
+        <result column="comment_num" property="commentNum" />
+        <result column="template" property="template" />
+        <result column="seo_key" property="seoKey" />
+        <result column="seo_desc" property="seoDesc" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <association property="category" javaType="com.nbclass.model.BlogCategory">
+            <result property="id" jdbcType="INTEGER" column="b_category_id"/>
+            <result property="name" jdbcType="VARCHAR" column="b_category_name"/>
+            <result property="aliasName" jdbcType="VARCHAR" column="b_category_alias_name"/>
+        </association>
+        <collection property="tags" column="tag_id" javaType="ArrayList" ofType="com.nbclass.model.BlogTag">
+            <result property="id" jdbcType="INTEGER" column="tag_id"/>
+            <result property="name" jdbcType="VARCHAR" column="tag_name"/>
+            <result property="createTime" jdbcType="TIMESTAMP" column="tag_create_time"/>
+            <result property="updateTime" jdbcType="TIMESTAMP" column="tag_update_time"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+                id,
+                title,
+                intro,
+                cover,
+                content,
+                content_md,
+                editor_type,
+                alias_name,
+                category_id,
+                is_top,
+                is_rec,
+                is_public,
+                is_comment,
+                type,
+                video,
+                origin,
+                look_num,
+                support_num,
+                oppose_num,
+                comment_num,
+                template,
+                seo_key,
+                seo_desc,
+                status,
+                create_time,
+                update_time
+    </sql>
+    <select id="selectList" parameterType="com.nbclass.vo.ArticleVo" resultMap="BaseResultMap">
+        SELECT a.id, a.title, a.intro, a.cover, a.editor_type, a.alias_name, a.category_id, a.is_top, a.is_rec, a.is_public, a.is_comment,
+                a.type, a.video, a.origin, a.look_num, a.support_num, a.oppose_num, a.comment_num, a.template, a.seo_key, a.seo_desc, a.status, a.create_time,
+                category.id AS b_category_id, category.`name` AS b_category_name, category.alias_name AS b_category_alias_name
+        FROM blog_article a
+        INNER JOIN blog_category category ON a.category_id = category.id
+        <if test="isTop != null">
+            AND	a.is_top = #{isTop}
+        </if>
+        <if test="isRec != null">
+            AND	a.is_rec = #{isRec}
+        </if>
+        <if test="isPublic != null">
+            AND	a.is_public = #{isPublic}
+        </if>
+        <if test="origin != null">
+            AND	a.origin = #{origin}
+        </if>
+        <if test="status != null">
+            AND	a.status = #{status}
+        </if>
+        <if test="keyword != null">
+            AND	a.title LIKE CONCAT('%',#{keyword},'%')
+        </if>
+        <if test="category != null and category != ''">
+            AND	category.alias_name = #{category}
+        </if>
+        <if test="tagId != null">
+            INNER JOIN blog_article_tag atag ON a.id = atag.article_id and atag.tag_id=#{tagId}
+        </if>
+        <choose>
+            <when test="isRandom != null">
+                ORDER BY RAND()
+            </when>
+            <otherwise>
+                ORDER BY
+                <if test="isRecent == null and isHot == null">
+                    a.is_top DESC,
+                </if>
+                <if test="isHot != null">
+                    a.look_num DESC,
+                </if>
+                a.create_time DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectTagsByArticleId" parameterType="List" resultMap="BaseResultMap">
+        SELECT
+        a.id,
+        t.id AS tag_id,
+        t.`name` AS tag_name
+        FROM
+        blog_article a
+        INNER JOIN blog_article_tag atag ON a.id = atag.article_id
+        INNER JOIN blog_tag t ON atag.tag_id = t.id
+        WHERE
+        a.id IN (
+        <foreach collection="list" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+
+    <select id="siteInfoStatistics" resultType="map">
+		SELECT
+            a.article_num AS articleNum,
+            t.tag_num AS tagNum,
+            category.category_num AS categoryNum,
+            c.comment_num AS commentNum
+        FROM
+            (
+                SELECT
+                    COUNT(1) AS article_num
+                FROM
+                    blog_article
+                WHERE
+                    `status` = 1
+                AND is_public = 1
+            ) a,
+            (
+                SELECT
+                    COUNT(1) AS tag_num
+                FROM
+                    blog_tag
+            ) t,
+            (
+                SELECT
+                    COUNT(1) AS category_num
+                FROM
+                    blog_category
+                WHERE
+                    STATUS = 1
+                AND `type` = 1
+            ) category,
+            (
+                SELECT
+                    COUNT(1) AS comment_num
+                FROM
+                    blog_comment
+                WHERE
+                    `status` = 1
+            ) c
+	</select>
+
+    <select id="selectByAliasName" resultMap="BaseResultMap">
+        SELECT
+        a.*,
+        category.id AS b_category_id,
+        category.`name` AS b_category_name,
+        category.alias_name AS b_category_alias_name,
+        t.id AS tag_id,
+        t.`name` AS tag_name,
+        t.create_time AS tag_create_time
+        FROM
+        blog_article a
+        INNER JOIN blog_category category ON a.category_id = category.id
+        INNER JOIN blog_article_tag atag ON a.id = atag.article_id
+        INNER JOIN blog_tag t ON atag.tag_id = t.id
+        WHERE a.alias_name=#{alias}
+    </select>
+
+    <update id="updateNum" parameterType="map">
+        update blog_article
+        <set>
+            <if test="lookNum != null">look_num = look_num+1, </if>
+            <if test="supportNum != null">support_num = support_num+1, </if>
+            <if test="opposeNum != null">oppose_num = oppose_num+1, </if>
+            <if test="commentNum != null">comment_num = comment_num+1, </if>
+        </set>
+        where id=#{articleId}
+    </update>
+
+</mapper>

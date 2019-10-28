@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>403</title>
+    <link th:href="@{/css/error.css}" rel="stylesheet"/>
+</head>
+<body>
+<div class="main-content error-content">
+    <div class="error-img-content"><img th:src="@{/img/500.png}"/></div>
+    <p class="error-text">很抱歉，您没有权限访问~</p>
+    <div class="error-btn-content">
+        <a class="btn btn-danger" href="/">返回主页</a>
+    </div>
+</div>
+</body>
+</html>
